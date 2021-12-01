@@ -36,7 +36,7 @@ CaisseWindow::CaisseWindow(QWidget* parent) :
 	auto widgetPrincipal = new QWidget(this);
 	auto layoutPrincipal = new QHBoxLayout(widgetPrincipal);  // Donner un parent à un layout est comme un setLayout.
 
-	
+
 	auto layoutGauche = new QVBoxLayout();
 	layoutPrincipal->addLayout(layoutGauche);
 	auto layoutBoutons = new QHBoxLayout();
@@ -47,12 +47,12 @@ CaisseWindow::CaisseWindow(QWidget* parent) :
 	layoutBoutons->addWidget(nouveauBouton("Ajouter article", &Caisse::operationPlus));
 	layoutBoutons->addWidget(nouveauBouton("Retirer article"));
 	layoutBoutons->addWidget(nouveauBouton("Reinitialiser list"));
-		
-	#if QT_VERSION >= QT_VERSION_CHECK(5,15,0)  // Le nom du signal idClicked existe depuis Qt 5.15
+
+#if QT_VERSION >= QT_VERSION_CHECK(5,15,0)  // Le nom du signal idClicked existe depuis Qt 5.15
 	//QObject::connect(groupeBoutons, &QButtonGroup::idClicked, &Caisse_, &Caisse::ajouterChiffre); // ajouterChiffre prend un int, donc le ID du bouton est bon directement.
-	#else
+#else
 	QObject::connect(groupeBoutons, SIGNAL(buttonClicked(int)), &Caisse_, SLOT(ajouterChiffre(int)));
-	#endif
+#endif
 
 	/*layoutGauche->addSpacing(10);
 	auto label = new QLabel(this);
@@ -99,31 +99,18 @@ CaisseWindow::CaisseWindow(QWidget* parent) :
 	//layout->addSpacing(110);
 
 
-		QCheckBox* taxable = new QCheckBox("&Taxable", this);
-		layout->addWidget(taxable);
-	}
-	{
-		auto layout = new QHBoxLayout();
-		layoutPrincipal->addLayout(layout);
+	QCheckBox* taxable = new QCheckBox("&Taxable", this);
+	layoutGauche->addWidget(taxable);
 
-		QLabel* totalAvantTaxe = new QLabel("Total avant taxes: ", this);
-		layout->addWidget(totalAvantTaxe);
-	}
-	{
-		auto layout = new QHBoxLayout();
-		layoutPrincipal->addLayout(layout);
+	QLabel* totalAvantTaxe = new QLabel("Total avant taxes: ", this);
+	layoutGauche->addWidget(totalAvantTaxe);
 
-		QLabel* totalTaxes = new QLabel("Total des taxes: ", this);
-		layout->addWidget(totalTaxes);
-	}
-	{
-		auto layout = new QHBoxLayout();
-		layoutPrincipal->addLayout(layout);
+	QLabel* totalTaxes = new QLabel("Total des taxes: ", this);
+	layoutGauche->addWidget(totalTaxes);
 
-		QLabel* total = new QLabel("Total a payer: ", this);
-		layout->addWidget(total);
+	QLabel* total = new QLabel("Total a payer: ", this);
+	layoutGauche->addWidget(total);
 
-	}
 
 	setCentralWidget(widgetPrincipal);
 	setWindowTitle("Caisse enregistreuse");
