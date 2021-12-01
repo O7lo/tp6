@@ -1,70 +1,68 @@
-﻿// Les test pour le Modèle pour calculatrice simple.
-// Par Francois-R.Boyer@PolyMtl.ca
-
-#include "Calc.hpp"
+﻿
+#include "Caisse.hpp"
 
 #if __has_include("gtest/gtest.h")
 #include "gtest/gtest.h"
 #endif
 #ifdef TEST
 
-TEST(Calc, simple) {
-	Calc calc;
-	calc.ajouterChiffre(1);
-	calc.ajouterChiffre(4);
-	calc.ajouterChiffre(3);
-	EXPECT_EQ(calc.obtenirValeur(), 143);
-	calc.effacer();
-	calc.ajouterChiffre(2);
-	calc.ajouterChiffre(1);
-	calc.ajouterChiffre(8);
-	EXPECT_EQ(calc.obtenirValeur(), 218);
+TEST(Caisse, simple) {
+	Caisse Caisse;
+	Caisse.ajouterChiffre(1);
+	Caisse.ajouterChiffre(4);
+	Caisse.ajouterChiffre(3);
+	EXPECT_EQ(Caisse.obtenirValeur(), 143);
+	Caisse.effacer();
+	Caisse.ajouterChiffre(2);
+	Caisse.ajouterChiffre(1);
+	Caisse.ajouterChiffre(8);
+	EXPECT_EQ(Caisse.obtenirValeur(), 218);
 }
 
-TEST(Calc, operations) {
-	Calc calc;
-	calc.ajouterChiffre(1);
-	calc.ajouterChiffre(4);
-	calc.ajouterChiffre(3);
-	calc.operationPlus();
-	calc.ajouterChiffre(2);
-	calc.ajouterChiffre(1);
-	calc.ajouterChiffre(8);
-	calc.operationEgal();
-	EXPECT_EQ(calc.obtenirValeur(), 143+218);
-	calc.ajouterChiffre(1);
-	calc.ajouterChiffre(4);
-	calc.ajouterChiffre(3);
-	calc.operationMoins();
-	calc.ajouterChiffre(2);
-	calc.ajouterChiffre(1);
-	calc.ajouterChiffre(8);
-	calc.operationEgal();
-	EXPECT_EQ(calc.obtenirValeur(), 143-218);
+TEST(Caisse, operations) {
+	Caisse Caisse;
+	Caisse.ajouterChiffre(1);
+	Caisse.ajouterChiffre(4);
+	Caisse.ajouterChiffre(3);
+	Caisse.operationPlus();
+	Caisse.ajouterChiffre(2);
+	Caisse.ajouterChiffre(1);
+	Caisse.ajouterChiffre(8);
+	Caisse.operationEgal();
+	EXPECT_EQ(Caisse.obtenirValeur(), 143+218);
+	Caisse.ajouterChiffre(1);
+	Caisse.ajouterChiffre(4);
+	Caisse.ajouterChiffre(3);
+	Caisse.operationMoins();
+	Caisse.ajouterChiffre(2);
+	Caisse.ajouterChiffre(1);
+	Caisse.ajouterChiffre(8);
+	Caisse.operationEgal();
+	EXPECT_EQ(Caisse.obtenirValeur(), 143-218);
 }
 
-TEST(Calc, changement_operation) {
-	Calc calc;
-	calc.ajouterChiffre(1);
-	calc.ajouterChiffre(4);
-	calc.ajouterChiffre(3);
-	calc.operationPlus();
-	calc.operationMoins();
-	calc.ajouterChiffre(2);
-	calc.ajouterChiffre(1);
-	calc.ajouterChiffre(8);
-	calc.operationEgal();
-	EXPECT_EQ(calc.obtenirValeur(), 143-218);
-	calc.ajouterChiffre(1);
-	calc.ajouterChiffre(4);
-	calc.ajouterChiffre(3);
-	calc.operationMoins();
-	calc.operationPlus();
-	calc.ajouterChiffre(2);
-	calc.ajouterChiffre(1);
-	calc.ajouterChiffre(8);
-	calc.operationEgal();
-	EXPECT_EQ(calc.obtenirValeur(), 143+218);
+TEST(Caisse, changement_operation) {
+	Caisse Caisse;
+	Caisse.ajouterChiffre(1);
+	Caisse.ajouterChiffre(4);
+	Caisse.ajouterChiffre(3);
+	Caisse.operationPlus();
+	Caisse.operationMoins();
+	Caisse.ajouterChiffre(2);
+	Caisse.ajouterChiffre(1);
+	Caisse.ajouterChiffre(8);
+	Caisse.operationEgal();
+	EXPECT_EQ(Caisse.obtenirValeur(), 143-218);
+	Caisse.ajouterChiffre(1);
+	Caisse.ajouterChiffre(4);
+	Caisse.ajouterChiffre(3);
+	Caisse.operationMoins();
+	Caisse.operationPlus();
+	Caisse.ajouterChiffre(2);
+	Caisse.ajouterChiffre(1);
+	Caisse.ajouterChiffre(8);
+	Caisse.operationEgal();
+	EXPECT_EQ(Caisse.obtenirValeur(), 143+218);
 }
 
 #endif

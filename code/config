@@ -5,3 +5,9 @@
 	logallrefupdates = true
 	symlinks = false
 	ignorecase = true
+[remote "origin"]
+	url = https://github.com/O7lo/tp6.git
+	fetch = +refs/heads/*:refs/remotes/origin/*
+[branch "main"]
+	remote = origin
+	merge = refs/heads/main
