@@ -10,6 +10,7 @@
 #include <QVariant>
 #include <QCheckBox>
 #include <QLineEdit>
+#include <QListWidget>
 #pragma pop()
 #include <iostream>
 #include <type_traits>
@@ -33,94 +34,73 @@ CaisseWindow::CaisseWindow(QWidget* parent) :
 {
 	// Si on objet n'a pas encore de parent on lui met "this" comme parent en attendant, si possible, pour s'assurer que tous les pointeurs sont gérés par un delete automatique en tout temps sans utiliser de unique_ptr.
 	auto widgetPrincipal = new QWidget(this);
-	auto layoutPrincipal = new QVBoxLayout(widgetPrincipal);  // Donner un parent à un layout est comme un setLayout.
+	auto layoutPrincipal = new QHBoxLayout(widgetPrincipal);  // Donner un parent à un layout est comme un setLayout.
 
-	// Pour faire la série de 10 boutons qui doivent tous appeler la même fonction du modèle mais avec des valeurs différentes d'argument, voici trois manières de le faire:
 	
-	
-	// Version avec QButtonGroup:
-	{
-		auto layout = new QHBoxLayout();
-		layoutPrincipal->addLayout(layout);
+	auto layoutGauche = new QVBoxLayout();
+	layoutPrincipal->addLayout(layoutGauche);
+	auto layoutBoutons = new QHBoxLayout();
+	layoutGauche->addLayout(layoutBoutons);
 
-		layout->setSpacing(1);
-		//auto groupeBoutons = new QButtonGroup(this);
-		//for (int i : range(10)) {
-		//	auto bouton = nouveauBouton(QString::number(i));
-		//	groupeBoutons->addButton(bouton, i); // L'ID du bouton est i (doit être un entier).
-		//	layout->addWidget(bouton);
-		//}
+	layoutBoutons->setSpacing(1);
 
-		layout->addWidget(nouveauBouton("Ajouter article", &Caisse::operationPlus));
-		layout->addWidget(nouveauBouton("Retirer article"));
-		layout->addWidget(nouveauBouton("Reinitialiser list"));
+	layoutBoutons->addWidget(nouveauBouton("Ajouter article", &Caisse::operationPlus));
+	layoutBoutons->addWidget(nouveauBouton("Retirer article"));
+	layoutBoutons->addWidget(nouveauBouton("Reinitialiser list"));
 		
-		#if QT_VERSION >= QT_VERSION_CHECK(5,15,0)  // Le nom du signal idClicked existe depuis Qt 5.15
-		//QObject::connect(groupeBoutons, &QButtonGroup::idClicked, &Caisse_, &Caisse::ajouterChiffre); // ajouterChiffre prend un int, donc le ID du bouton est bon directement.
-		#else
-		QObject::connect(groupeBoutons, SIGNAL(buttonClicked(int)), &Caisse_, SLOT(ajouterChiffre(int)));
-		#endif
+	#if QT_VERSION >= QT_VERSION_CHECK(5,15,0)  // Le nom du signal idClicked existe depuis Qt 5.15
+	//QObject::connect(groupeBoutons, &QButtonGroup::idClicked, &Caisse_, &Caisse::ajouterChiffre); // ajouterChiffre prend un int, donc le ID du bouton est bon directement.
+	#else
+	QObject::connect(groupeBoutons, SIGNAL(buttonClicked(int)), &Caisse_, SLOT(ajouterChiffre(int)));
+	#endif
 
-		/*layout->addSpacing(10);
-		layout->addWidget(nouveauBouton("+", &Caisse::operationPlus));
-		layout->addWidget(nouveauBouton("-", &Caisse::operationMoins));
-		layout->addWidget(nouveauBouton("=", &Caisse::operationEgal));*/
+	/*layoutGauche->addSpacing(10);
+	auto label = new QLabel(this);
+	affichage_ = label;
+	label->setMinimumWidth(100);
+	QObject::connect(&Caisse_, &Caisse::valeurChangee, this, &CaisseWindow::changerValeurAffichee);
+	layoutGauche->addWidget(label);*/
 
-		layout->addSpacing(10);
-		auto label = new QLabel(this);
-		affichage_ = label;
-		label->setMinimumWidth(100);
-		QObject::connect(&Caisse_, &Caisse::valeurChangee, this, &CaisseWindow::changerValeurAffichee);
-		layout->addWidget(label);
+	auto layoutLineEdits = new QHBoxLayout();
+	layoutGauche->addLayout(layoutLineEdits);
 
-	}
-	
-	 /*------------------------------------------------------------
-	 Version avec setProperty:*/
-	{
-		auto layout = new QHBoxLayout();
-		layoutPrincipal->addLayout(layout);
-	
-		
+	auto nomArticle = new QLineEdit(this);
+	nomArticle->setFixedSize(300, 50);
+	nomArticle->setPlaceholderText("Description de l'article");
+	layoutLineEdits->addWidget(nomArticle);
 
+	layoutLineEdits->addSpacing(10);
+	auto prixArticle = new QLineEdit(this);
+	prixArticle->setPlaceholderText("Prix de l'article");
+	prixArticle->setFixedSize(100, 50);
+	layoutLineEdits->addWidget(prixArticle);
 
-		auto nomArticle = new QLineEdit(this);
-		nomArticle->setFixedSize(300, 50);
-		nomArticle->setPlaceholderText("Description de l'article");
-		layout->addWidget(nomArticle);
-
-		layout->addSpacing(10);
-		auto prixArticle = new QLineEdit(this);
-		prixArticle->setPlaceholderText("Prix de l'article");
-		prixArticle->setFixedSize(100, 50);
-		layout->addWidget(prixArticle);
+	auto listeArticles = new QListWidget(this);
+	new QListWidgetItem(tr("Hazel"), listeArticles);
+	layoutPrincipal->addWidget(listeArticles);
+	//listeArticles->set
 
 
-		//layout->setSpacing(0);
-		//for (int i : range(10)) {
-		//	auto bouton = nouveauBouton(QString::number(i));
-		//	// On donne un nom à la propriété, et on lui donne une valeur QVariant (comme dans les notes de cours) d'un type quelconque (doit enregistrer le type avec Q_DECLARE_METATYPE(LeType) si ce n'est pas un type déjà connu de Qt).
-		//	bouton->setProperty("chiffre", QVariant::fromValue<int>(i));
-		//	QObject::connect(bouton, &QPushButton::clicked, this, &CaisseWindow::chiffreAppuye);
-		//	layout->addWidget(bouton);
-		//}
+	//layout->setSpacing(0);
+	//for (int i : range(10)) {
+	//	auto bouton = nouveauBouton(QString::number(i));
+	//	// On donne un nom à la propriété, et on lui donne une valeur QVariant (comme dans les notes de cours) d'un type quelconque (doit enregistrer le type avec Q_DECLARE_METATYPE(LeType) si ce n'est pas un type déjà connu de Qt).
+	//	bouton->setProperty("chiffre", QVariant::fromValue<int>(i));
+	//	QObject::connect(bouton, &QPushButton::clicked, this, &CaisseWindow::chiffreAppuye);
+	//	layout->addWidget(bouton);
+	//}
 
-		//layout->addSpacing(10);
-		//layout->addWidget(nouveauBouton("+", &Caisse::operationPlus));
-		//layout->addWidget(nouveauBouton("-", &Caisse::operationMoins));
-		//layout->addWidget(nouveauBouton("=", &Caisse::operationEgal));
+	//layout->addSpacing(10);
+	//layout->addWidget(nouveauBouton("+", &Caisse::operationPlus));
+	//layout->addWidget(nouveauBouton("-", &Caisse::operationMoins));
+	//layout->addWidget(nouveauBouton("=", &Caisse::operationEgal));
 
-		//// On ne met pas un autre affichage, on en a déjà deux versions différentes.
-		//layout->addSpacing(110);
-	}
+	//// On ne met pas un autre affichage, on en a déjà deux versions différentes.
+	//layout->addSpacing(110);
 
-	{
-		auto layout = new QHBoxLayout();
-		layoutPrincipal->addLayout(layout);
 
-		QCheckBox* taxable = new QCheckBox("&Taxable", this);
-		layout->addWidget(taxable);
-	}
+	QCheckBox* taxable = new QCheckBox("&Taxable", this);
+	layoutGauche->addWidget(taxable);
 
 	setCentralWidget(widgetPrincipal);
 	setWindowTitle("Caisse enregistreuse");
