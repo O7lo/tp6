@@ -2,3 +2,4 @@
 3a70d00a2787ff5dc1f188706d5c9b578a408099 3a70d00a2787ff5dc1f188706d5c9b578a408099 O7lo <80862226+O7lo@users.noreply.github.com> 1638293272 -0500	Branch: renamed refs/heads/master to refs/heads/main
 3a70d00a2787ff5dc1f188706d5c9b578a408099 bcc071e32161aa94af401c13a085079932d8eced O7lo <80862226+O7lo@users.noreply.github.com> 1638382713 -0500	commit: changements des noms de calc à caisse et ajout de placeholdertexts
 bcc071e32161aa94af401c13a085079932d8eced ec0af0967ae57ab539a29fdb77ad408340a1109d O7lo <80862226+O7lo@users.noreply.github.com> 1638384981 -0500	pull: Fast-forward
+ec0af0967ae57ab539a29fdb77ad408340a1109d 04cb5d1fa991f1c803c5928a5564c767a5b3ee15 O7lo <80862226+O7lo@users.noreply.github.com> 1638387032 -0500	commit: listwidget

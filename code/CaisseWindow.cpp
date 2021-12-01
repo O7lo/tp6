@@ -99,8 +99,31 @@ CaisseWindow::CaisseWindow(QWidget* parent) :
 	//layout->addSpacing(110);
 
 
-	QCheckBox* taxable = new QCheckBox("&Taxable", this);
-	layoutGauche->addWidget(taxable);
+		QCheckBox* taxable = new QCheckBox("&Taxable", this);
+		layout->addWidget(taxable);
+	}
+	{
+		auto layout = new QHBoxLayout();
+		layoutPrincipal->addLayout(layout);
+
+		QLabel* totalAvantTaxe = new QLabel("Total avant taxes: ", this);
+		layout->addWidget(totalAvantTaxe);
+	}
+	{
+		auto layout = new QHBoxLayout();
+		layoutPrincipal->addLayout(layout);
+
+		QLabel* totalTaxes = new QLabel("Total des taxes: ", this);
+		layout->addWidget(totalTaxes);
+	}
+	{
+		auto layout = new QHBoxLayout();
+		layoutPrincipal->addLayout(layout);
+
+		QLabel* total = new QLabel("Total a payer: ", this);
+		layout->addWidget(total);
+
+	}
 
 	setCentralWidget(widgetPrincipal);
 	setWindowTitle("Caisse enregistreuse");
