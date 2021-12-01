@@ -8,6 +8,7 @@
 #include <QLabel>
 #include <QString>
 #include <QVariant>
+#include <QCheckBox>
 #include <QLineEdit>
 #pragma pop()
 #include <iostream>
@@ -111,6 +112,14 @@ CaisseWindow::CaisseWindow(QWidget* parent) :
 
 		//// On ne met pas un autre affichage, on en a déjà deux versions différentes.
 		//layout->addSpacing(110);
+	}
+
+	{
+		auto layout = new QHBoxLayout();
+		layoutPrincipal->addLayout(layout);
+
+		QCheckBox* taxable = new QCheckBox("&Taxable", this);
+		layout->addWidget(taxable);
 	}
 
 	setCentralWidget(widgetPrincipal);
