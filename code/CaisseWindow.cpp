@@ -9,6 +9,7 @@
 #include <QString>
 #include <QVariant>
 #include <QCheckBox>
+#include <QSplitter>
 #include <QLineEdit>
 #include <QListWidget>
 #pragma pop()
@@ -36,25 +37,39 @@ CaisseWindow::CaisseWindow(QWidget* parent) :
 	auto widgetPrincipal = new QWidget(this);
 	auto layoutPrincipal = new QHBoxLayout(widgetPrincipal);  // Donner un parent à un layout est comme un setLayout.
 
-	auto layoutGauche = new QVBoxLayout();
-	layoutPrincipal->addLayout(layoutGauche);
+	//layout principal : splitter permet à l'utilisateur de modifier la taille des widgets de droite vs ceux de gauche
+	auto splitter = new	QSplitter(this);
+	splitter->setHandleWidth(1);
+	widgetPrincipal->setStyleSheet("QSplitter::handle { background-color: black }");
+	layoutPrincipal->addWidget(splitter);
 
-	auto layoutDroite = new QVBoxLayout();
-	layoutPrincipal->addLayout(layoutDroite);
-	auto layoutBoutons = new QVBoxLayout();
-	layoutDroite->addLayout(layoutBoutons);
+	auto widgetGauche = new QWidget(splitter);
+	auto widgetDroite = new QWidget(splitter);
+	auto layoutGauche = new QVBoxLayout(widgetGauche);
+	auto layoutDroite = new QVBoxLayout(widgetDroite);
 
-	layoutBoutons->setSpacing(1);
+	//layout de droite : ajout d'un widget bidon pour permettre aux elements de rester dans le haut de la fenêtre
+	auto widgetEntree = new QWidget(this);
+	auto widgetBidon = new QWidget(this);
+	layoutDroite->addWidget(widgetEntree);
+	layoutDroite->addWidget(widgetBidon);
+	widgetEntree->setMaximumHeight(300);
+	auto layoutEntree = new QVBoxLayout(widgetEntree);
 
-	layoutBoutons->addWidget(nouveauBouton("Ajouter article", &Caisse::operationPlus));
-	layoutBoutons->addWidget(nouveauBouton("Retirer article"));
-	layoutBoutons->addWidget(nouveauBouton("Tout réinitialiser"));
+	//layout pour les entrées utilisateur
+	layoutEntree->addWidget(nouveauBouton("Ajouter article"/*, &Caisse::operationAjouter*/));
+	layoutEntree->addWidget(nouveauBouton("Retirer article"/*,&Caisse::operationRetirer*/));
+	layoutEntree->addWidget(nouveauBouton("Tout réinitialiser",&Caisse::operationReset));
+	auto layoutLineEdits = new QHBoxLayout();
+	layoutEntree->addLayout(layoutLineEdits);
+	QCheckBox* taxable = new QCheckBox("&Taxable", this);
+	layoutEntree->addWidget(taxable);
 
-#if QT_VERSION >= QT_VERSION_CHECK(5,15,0)  // Le nom du signal idClicked existe depuis Qt 5.15
-	//QObject::connect(groupeBoutons, &QButtonGroup::idClicked, &Caisse_, &Caisse::ajouterChiffre); // ajouterChiffre prend un int, donc le ID du bouton est bon directement.
-#else
-	QObject::connect(groupeBoutons, SIGNAL(buttonClicked(int)), &Caisse_, SLOT(ajouterChiffre(int)));
-#endif
+//#if QT_VERSION >= QT_VERSION_CHECK(5,15,0)  // Le nom du signal idClicked existe depuis Qt 5.15
+//	QObject::connect(groupeBoutons, &QButtonGroup::idClicked, &Caisse_, &Caisse::ajouterChiffre); // ajouterChiffre prend un int, donc le ID du bouton est bon directement.
+//#else
+//	QObject::connect(groupeBoutons, SIGNAL(buttonClicked(int)), &Caisse_, SLOT(ajouterChiffre(int)));
+//#endif
 
 	/*layoutDroite->addSpacing(10);
 	auto label = new QLabel(this);
@@ -62,28 +77,23 @@ CaisseWindow::CaisseWindow(QWidget* parent) :
 	label->setMinimumWidth(100);
 	QObject::connect(&Caisse_, &Caisse::valeurChangee, this, &CaisseWindow::changerValeurAffichee);
 	layoutDroite->addWidget(label);*/
-	auto layoutEntreeArticle = new QVBoxLayout();
-	layoutDroite->addLayout(layoutEntreeArticle);
-	auto layoutBidon = new QVBoxLayout();
-	layoutDroite->addLayout(layoutBidon);
 
-	auto layoutLineEdits = new QHBoxLayout();
-	layoutEntreeArticle->addLayout(layoutLineEdits);
-
+	
+	//layout pour la description et le prix de l'article
 	auto nomArticle = new QLineEdit(this);
-	nomArticle->setFixedSize(300, 30);
+	nomArticle->setFixedHeight(30);
 	nomArticle->setPlaceholderText("Description de l'article");
 	layoutLineEdits->addWidget(nomArticle);
-
 	layoutLineEdits->addSpacing(10);
 	auto prixArticle = new QLineEdit(this);
 	prixArticle->setPlaceholderText("Prix de l'article");
-	prixArticle->setFixedSize(100, 30);
+	prixArticle->setFixedHeight(30);
+	prixArticle->setMaximumWidth(75);
 	layoutLineEdits->addWidget(prixArticle);
 
-	auto listeArticles = new QListWidget(this);
-	layoutGauche->addWidget(listeArticles);
-	new QListWidgetItem(tr("Hazel"), listeArticles);
+
+
+
 	
 	//listeArticles->set
 
@@ -105,9 +115,10 @@ CaisseWindow::CaisseWindow(QWidget* parent) :
 	//// On ne met pas un autre affichage, on en a déjà deux versions différentes.
 	//layout->addSpacing(110);
 
-
-	QCheckBox* taxable = new QCheckBox("&Taxable", this);
-	layoutEntreeArticle->addWidget(taxable);
+	//layout de gauche
+	auto listeArticles = new QListWidget(this);
+	layoutGauche->addWidget(listeArticles);
+	new QListWidgetItem(tr("Hazel"), listeArticles);
 
 	QLabel* totalAvantTaxe = new QLabel("Total avant taxes: ", this);
 	layoutGauche->addWidget(totalAvantTaxe);
@@ -126,15 +137,15 @@ CaisseWindow::CaisseWindow(QWidget* parent) :
 
 // Pour la version QButtonGroup.
 // Pourrait aussi être sans paramètre et faire Caisse_.obtenirValeur()
-void CaisseWindow::changerValeurAffichee(int valeur)
-{
-	affichage_->setText(QString::number(valeur));
-}
+//void CaisseWindow::changerValeurAffichee(int valeur)
+//{
+//	affichage_->setText(QString::number(valeur));
+//}
 
 
 // Pour la version setProperty.
-void CaisseWindow::chiffreAppuye()
-{
-	// QObject::sender() est l'objet d'où vient le signal connecté à ce slot; attention qu'il sera nullptr si le slot est appelé directement au lieu de passer par un signal.
-	Caisse_.ajouterChiffre(QObject::sender()->property("chiffre").value<int>());
-}
+//void CaisseWindow::chiffreAppuye()
+//{
+//	// QObject::sender() est l'objet d'où vient le signal connecté à ce slot; attention qu'il sera nullptr si le slot est appelé directement au lieu de passer par un signal.
+//	Caisse_.ajouterChiffre(QObject::sender()->property("chiffre").value<int>());
+//}
