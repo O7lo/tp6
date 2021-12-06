@@ -13,9 +13,12 @@
 #pragma pop()
 #include <iostream>
 #include <type_traits>
+#include <vector>
 #include <cppitertools/range.hpp>
 
 using iter::range;
+
+
 
 template <typename T>
 QPushButton* CaisseWindow::nouveauBouton(const QString& text, const T& slot)
@@ -124,9 +127,17 @@ CaisseWindow::CaisseWindow(QWidget* parent) :
 	//layout->addSpacing(110);
 
 	//layout de gauche
+	vector<const char*> Article;
+	Article.push_back("banana");
+	Article.push_back("orange");
+	Article.push_back("honey");
 	auto listeArticles = new QListWidget(this);
 	layoutGauche->addWidget(listeArticles);
-	new QListWidgetItem(tr("Hazel"), listeArticles);
+	
+	for (auto i : range(Article.size())) {
+		listeArticles->addItem(Article[i]);
+	}
+	
 
 	QLabel* totalAvantTaxe = new QLabel("Total avant taxes: ", this);
 	layoutGauche->addWidget(totalAvantTaxe);

@@ -4,6 +4,15 @@
 #pragma pop()
 #include <functional>
 #include <iostream>
+#include <vector>
+
+using namespace std;
+
+struct Article {
+	const string nom;
+	double prix;
+	bool taxable;
+};
 
 using namespace std; // Dans ce cours on accepte le using namespace std dans le .hpp .
 
@@ -28,14 +37,15 @@ public slots:
 	void prix(QString prix);
 	void retirer();
 	void reset();
+	void ajouterArticle(Article& article);
 
 signals:
-	void totalChange(int valeur);
+	void valeurChangee(int valeur);
+	void articleAjoutee(const Article& article);
 
 private:
-	//static int ajouter (int x, int y);
-	//static int retirer(int x, int y);
-	//static int reset(int,int);
+	vector<Article> article_;
+
 
 	/*bool estResultat_ = true;
 	int valeur_ = 0;
