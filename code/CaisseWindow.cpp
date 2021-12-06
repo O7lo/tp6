@@ -8,9 +8,7 @@
 #include <QLabel>
 #include <QString>
 #include <QVariant>
-#include <QCheckBox>
 #include <QSplitter>
-#include <QLineEdit>
 #include <QListWidget>
 #pragma pop()
 #include <iostream>
@@ -25,8 +23,7 @@ QPushButton* CaisseWindow::nouveauBouton(const QString& text, const T& slot)
 	auto bouton = new QPushButton(this);
 	bouton->setText(text);
 	bouton->setFixedHeight(40);
-	if constexpr (!is_same_v<T, decltype(nullptr)>)
-		QObject::connect(bouton, &QPushButton::clicked, &Caisse_, slot);
+	QObject::connect(bouton, &QPushButton::clicked, &Caisse_, slot);
 	return bouton;	
 }
 
@@ -57,13 +54,21 @@ CaisseWindow::CaisseWindow(QWidget* parent) :
 	auto layoutEntree = new QVBoxLayout(widgetEntree);
 
 	//layout pour les entrées utilisateur
-	layoutEntree->addWidget(nouveauBouton("Ajouter article"/*, &Caisse::operationAjouter*/));
-	layoutEntree->addWidget(nouveauBouton("Retirer article"/*,&Caisse::operationRetirer*/));
-	layoutEntree->addWidget(nouveauBouton("Tout réinitialiser",&Caisse::operationReset));
+	
+	auto boutonAjouter = new QPushButton(this);
+	layoutEntree->addWidget(boutonAjouter);
+	boutonAjouter->setText("Ajouter article");
+	boutonAjouter->setFixedHeight(40);
+	
+
+	layoutEntree->addWidget(nouveauBouton("Retirer article",&Caisse::retirer));
+	layoutEntree->addWidget(nouveauBouton("Tout réinitialiser",&Caisse::reset));
 	auto layoutLineEdits = new QHBoxLayout();
 	layoutEntree->addLayout(layoutLineEdits);
 	QCheckBox* taxable = new QCheckBox("&Taxable", this);
+	taxable_ = taxable;
 	layoutEntree->addWidget(taxable);
+	//QObject::connect(taxable, &QCheckBox::isChecked, &Caisse_, slot);
 
 //#if QT_VERSION >= QT_VERSION_CHECK(5,15,0)  // Le nom du signal idClicked existe depuis Qt 5.15
 //	QObject::connect(groupeBoutons, &QButtonGroup::idClicked, &Caisse_, &Caisse::ajouterChiffre); // ajouterChiffre prend un int, donc le ID du bouton est bon directement.
@@ -81,18 +86,21 @@ CaisseWindow::CaisseWindow(QWidget* parent) :
 	
 	//layout pour la description et le prix de l'article
 	auto nomArticle = new QLineEdit(this);
+	nomArticle_ = nomArticle;
 	nomArticle->setFixedHeight(30);
 	nomArticle->setPlaceholderText("Description de l'article");
+	//nomArticle->setDisabled(true);
 	layoutLineEdits->addWidget(nomArticle);
 	layoutLineEdits->addSpacing(10);
 	auto prixArticle = new QLineEdit(this);
+	prixArticle_ = prixArticle;
 	prixArticle->setPlaceholderText("Prix de l'article");
 	prixArticle->setFixedHeight(30);
 	prixArticle->setMaximumWidth(75);
 	layoutLineEdits->addWidget(prixArticle);
 
-
-
+	QObject::connect(boutonAjouter, &QPushButton::clicked, this, &CaisseWindow::envoyerNouvelArticle);
+	QObject::connect(this, &CaisseWindow::nouvelArticle, &Caisse_, &Caisse::ajouter);
 
 	
 	//listeArticles->set
@@ -134,7 +142,12 @@ CaisseWindow::CaisseWindow(QWidget* parent) :
 	setWindowTitle("Caisse enregistreuse");
 }
 
+void CaisseWindow::envoyerNouvelArticle() {
 
+	emit nouvelArticle	(CaisseWindow::nomArticle_->text(),
+						(CaisseWindow::prixArticle_->text()).toFloat(),
+						CaisseWindow::taxable_->checkState());
+}
 // Pour la version QButtonGroup.
 // Pourrait aussi être sans paramètre et faire Caisse_.obtenirValeur()
 //void CaisseWindow::changerValeurAffichee(int valeur)

@@ -8,6 +8,8 @@
 #include <QPushButton>
 #include <QString>
 #include <QLabel>
+#include <QLineEdit>
+#include <QCheckBox>
 #pragma pop()
 
 class CaisseWindow : public QMainWindow {
@@ -20,6 +22,10 @@ public:
 public slots:
 	//void changerValeurAffichee(int valeur);  // Pour la version QButtonGroup.
 	//void chiffreAppuye(); //QAbstractButton* bouton);  // Pour la version setProperty.
+	void envoyerNouvelArticle();
+
+signals:
+	void nouvelArticle(const QString& description, const float& prix, const bool& taxable);
 
 private:
 	template <typename T = decltype(nullptr)>
@@ -27,5 +33,8 @@ private:
 
 	Caisse Caisse_;  // Le Modèle (pourrait être un pointeur mais pas nécessaire dans ce cas).
 
+	QLineEdit* nomArticle_;
+	QLineEdit* prixArticle_;
+	QCheckBox* taxable_;
 	QLabel* affichage_;  // Pour la version QButtonGroup.
 };

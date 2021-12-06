@@ -2,7 +2,7 @@
 
 #include "Caisse.hpp"
 
-// slots:
+//slots:
 
 //void Caisse::changerValeur(int valeur) {
 //	if (valeur != valeur_) {
@@ -21,24 +21,37 @@
 //	changerValeur(valeur_ * 10 + chiffre);
 //}
 
-void Caisse::changerOperation(const function<int(int, int)>& operation) {
-	if (!estResultat_)
-		effectuerOperation();
-	operation_ = operation;
-}
+//void Caisse::changerOperation(const function<int(int, int)>& operation) {
+//	if (!estResultat_)
+//		effectuerOperation();
+//	operation_ = operation;
+//}
 
-void Caisse::operationAjouter()  { changerOperation(Ajouter); }
-void Caisse::operationRetirer() { changerOperation(Retirer); }
-void Caisse::operationReset()	{ changerOperation(reset); }
+//void Caisse::operationAjouter()  { changerOperation(Ajouter); }
+//void Caisse::operationRetirer() { changerOperation(Retirer); }
+//void Caisse::operationReset()	{ changerOperation(reset); }
 
-void Caisse::effectuerOperation() {
+//void Caisse::effectuerOperation() {
 	//resultatPrecedent_ = operation_(resultatPrecedent_, valeur_);
 	//estResultat_ = true;
 	//changerValeur(resultatPrecedent_);
-}
+//}
 
 // Fonctions pour l'opération:
 // (on aurait pu à la place mettre des lambdas dans operationPlus() ...)
-int Caisse::Ajouter (int x, int y) { return x + y; }
-int Caisse::Retirer(int x, int y) { return x - y; }
-int Caisse::reset(int,int) { return 0; }
+void Caisse::ajouter (QString description,float prix, bool taxable) {
+	std::cout << description.toStdString()<<"\t"<<prix;
+	if (taxable) { cout << "\ttaxable"; }
+}
+void Caisse::description(QString description) {
+	description_ = description;
+}
+void Caisse::prix(QString prix) {
+	prix_ = prix.toFloat();
+}
+void Caisse::retirer() {
+	//element de la liste
+}
+void Caisse::reset() {
+	//vider la liste et les zones de texte
+}
