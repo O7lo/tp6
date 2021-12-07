@@ -70,13 +70,7 @@ CaisseWindow::CaisseWindow(QWidget* parent) :
 	QCheckBox* taxable = new QCheckBox("&Taxable", this);
 	taxable_ = taxable;
 	layoutEntree->addWidget(taxable);
-	//QObject::connect(taxable, &QCheckBox::isChecked, &Caisse_, slot);
 
-//#if QT_VERSION >= QT_VERSION_CHECK(5,15,0)  // Le nom du signal idClicked existe depuis Qt 5.15
-//	QObject::connect(groupeBoutons, &QButtonGroup::idClicked, &Caisse_, &Caisse::ajouterChiffre); // ajouterChiffre prend un int, donc le ID du bouton est bon directement.
-//#else
-//	QObject::connect(groupeBoutons, SIGNAL(buttonClicked(int)), &Caisse_, SLOT(ajouterChiffre(int)));
-//#endif
 
 	/*layoutDroite->addSpacing(10);
 	auto label = new QLabel(this);
@@ -91,7 +85,6 @@ CaisseWindow::CaisseWindow(QWidget* parent) :
 	nomArticle_ = nomArticle;
 	nomArticle->setFixedHeight(30);
 	nomArticle->setPlaceholderText("Description de l'article");
-	//nomArticle->setDisabled(true);
 	layoutLineEdits->addWidget(nomArticle);
 	layoutLineEdits->addSpacing(10);
 	auto prixArticle = new QLineEdit(this);
@@ -105,56 +98,48 @@ CaisseWindow::CaisseWindow(QWidget* parent) :
 	QObject::connect(boutonAjouter, &QPushButton::clicked, this, &CaisseWindow::envoyerNouvelArticle);
 	QObject::connect(this, &CaisseWindow::nouvelArticle, &Caisse_, &Caisse::ajouter);
 	QObject::connect(&Caisse_, &Caisse::vecteurModifie, this, &CaisseWindow::rafraichirArticles );
+	QObject::connect(&Caisse_, &Caisse::vecteurModifie, &Caisse_, &Caisse::calculerTotaux);
+	QObject::connect(&Caisse_, &Caisse::totauxModifies, this, &CaisseWindow::rafraichirTotaux);
 
-	
-	//listeArticles->set
-
-
-	//layout->setSpacing(0);
-	//for (int i : range(10)) {
-	//	auto bouton = nouveauBouton(QString::number(i));
-	//	// On donne un nom à la propriété, et on lui donne une valeur QVariant (comme dans les notes de cours) d'un type quelconque (doit enregistrer le type avec Q_DECLARE_METATYPE(LeType) si ce n'est pas un type déjà connu de Qt).
-	//	bouton->setProperty("chiffre", QVariant::fromValue<int>(i));
-	//	QObject::connect(bouton, &QPushButton::clicked, this, &CaisseWindow::chiffreAppuye);
-	//	layout->addWidget(bouton);
-	//}
-
-	//layout->addSpacing(10);
-	//layout->addWidget(nouveauBouton("+", &Caisse::operationPlus));
-	//layout->addWidget(nouveauBouton("-", &Caisse::operationMoins));
-	//layout->addWidget(nouveauBouton("=", &Caisse::operationEgal));
-
-	//// On ne met pas un autre affichage, on en a déjà deux versions différentes.
-	//layout->addSpacing(110);
 
 	//layout de gauche
-	vector<const char*> Article;
-	Article.push_back("banana");
-	Article.push_back("orange");
-	Article.push_back("honey");
 	auto listeArticles = new QListWidget(this);
 	listeArticles_ = listeArticles;
 	layoutGauche->addWidget(listeArticles);
-	
-	
-	
 
-	QLabel* totalAvantTaxe = new QLabel("Total avant taxes: ", this);
-	layoutGauche->addWidget(totalAvantTaxe);
+	QLabel* totalAvantTaxes = new QLabel("Sous-Total: ", this);
+	QLabel* valeurAvantTaxes = new QLabel("0", this);
+	valeurAvantTaxes->setAlignment(Qt::AlignRight);
+	totalAvantTaxes_ = valeurAvantTaxes;
+	auto layoutSousTotal = new QHBoxLayout();
+	layoutGauche->addLayout(layoutSousTotal);
+	layoutSousTotal->addWidget(totalAvantTaxes);
+	layoutSousTotal->addWidget(valeurAvantTaxes);
 
-	QLabel* totalTaxes = new QLabel("Total des taxes: ", this);
-	layoutGauche->addWidget(totalTaxes);
+	QLabel* totalTaxes = new QLabel("Taxes: ", this);
+	QLabel* valeurTaxes = new QLabel("0", this);
+	valeurTaxes->setAlignment(Qt::AlignRight);
+	totalTaxes_ = valeurTaxes;
+	auto layoutTaxes = new QHBoxLayout();
+	layoutGauche->addLayout(layoutTaxes);
+	layoutTaxes->addWidget(totalTaxes);
+	layoutTaxes->addWidget(valeurTaxes);
 
-	QLabel* total = new QLabel("Total a payer: ", this);
-	layoutGauche->addWidget(total);
-
+	QLabel* total = new QLabel("Total: ", this);
+	QLabel* valeurTotal = new QLabel("0", this);
+	valeurTotal->setAlignment(Qt::AlignRight);
+	total_ = valeurTotal;
+	auto layoutTotal = new QHBoxLayout();
+	layoutGauche->addLayout(layoutTotal);
+	layoutTotal->addWidget(total);
+	layoutTotal->addWidget(valeurTotal);
 
 	setCentralWidget(widgetPrincipal);
 	setWindowTitle("Caisse enregistreuse");
 }
 
 void CaisseWindow::envoyerNouvelArticle() {
-	/*probleme de compatibilité entre QDoubleValidator et QString::toDouble().
+	/*problème de compatibilité entre QDoubleValidator et QString::toDouble().
 	merci à Cory Quammen pour la solution trouvée en ligne : https://gitlab.kitware.com/paraview/paraview/-/issues/15786
 	---------------------------------------------------*/
 	QLocale oL;
@@ -172,17 +157,9 @@ void CaisseWindow::rafraichirArticles() {
 		CaisseWindow::listeArticles_->addItem(article.toQString());
 	}
 }
-// Pour la version QButtonGroup.
-// Pourrait aussi être sans paramètre et faire Caisse_.obtenirValeur()
-//void CaisseWindow::changerValeurAffichee(int valeur)
-//{
-//	affichage_->setText(QString::number(valeur));
-//}
 
-
-// Pour la version setProperty.
-//void CaisseWindow::chiffreAppuye()
-//{
-//	// QObject::sender() est l'objet d'où vient le signal connecté à ce slot; attention qu'il sera nullptr si le slot est appelé directement au lieu de passer par un signal.
-//	Caisse_.ajouterChiffre(QObject::sender()->property("chiffre").value<int>());
-//}
+void CaisseWindow::rafraichirTotaux(QString sousTotal, QString taxes, QString total) {
+	CaisseWindow::totalAvantTaxes_->setText(sousTotal);
+	CaisseWindow::totalTaxes_->setText(taxes);
+	CaisseWindow::total_->setText(total);
+}

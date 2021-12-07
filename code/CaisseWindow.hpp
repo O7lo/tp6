@@ -25,6 +25,7 @@ public slots:
 	//void chiffreAppuye(); //QAbstractButton* bouton);  // Pour la version setProperty.
 	void envoyerNouvelArticle();
 	void rafraichirArticles();
+	void rafraichirTotaux(QString sousTotal, QString taxes, QString total);
 
 signals:
 	void nouvelArticle(const QString& description, const float& prix, const bool& taxable);
@@ -38,5 +39,8 @@ private:
 	QLineEdit* nomArticle_;
 	QLineEdit* prixArticle_;
 	QCheckBox* taxable_;
+	QLabel* totalAvantTaxes_;
+	QLabel* totalTaxes_;
+	QLabel* total_;
 	//QLabel* affichage_;  // Pour la version QButtonGroup.
 };

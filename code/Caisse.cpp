@@ -57,3 +57,18 @@ void Caisse::retirer() {
 void Caisse::reset() {
 	//vider la liste et les zones de texte
 }
+
+void Caisse::calculerTotaux() {
+	sousTotal_ = 0;
+	for (Article article : articles_) {
+		sousTotal_ += article.prix;
+	}
+	double taxes = 0;
+	std::for_each	(articles_.begin(),
+					articles_.end(), 
+					[&](const Article& article) { taxes+=article.taxable*0.14975*article.prix; });
+	double total = sousTotal_ + taxes;
+	emit totauxModifies(QString(doubleVersString(sousTotal_).c_str()),
+						QString(doubleVersString(taxes).c_str()),
+						QString(doubleVersString(total).c_str()));
+}
