@@ -14,13 +14,15 @@ struct Article {
 	double prix;
 	bool taxable;
 
-	QString toString() {
-		std::string tax;
-		if (taxable) {
-			tax = "taxable";
-		}
-		std::string str = nom + "\t" + (to_string(prix)) +"\t"+ tax;
-		return QString(str.c_str());
+	QString toQString() {
+		string tax = "";
+		string article;
+		int prix100 = round(prix * 100);
+		string str = to_string(prix100);
+		string prixAffichable = str.substr(0, str.length() - 2) + "." + str.substr(str.length() - 2, str.length());
+		if (taxable) {tax = "taxable";}
+		article = nom + "\t" + prixAffichable + "\t" + tax;
+		return QString(article.c_str());
 	}
 };
 
@@ -42,7 +44,7 @@ public slots:
 	//void operationRetirer();
 	//void operationReset();
 	//void effectuerOperation();
-	void ajouter(QString description,float prix, bool taxable);
+	void ajouter(QString description,double prix, bool taxable);
 	void retirer();
 	void reset();
 	//void ajouterArticle(Article& article);
@@ -58,6 +60,4 @@ private:
 	int valeur_ = 0;
 	int resultatPrecedent_ = 0;
 	function<int(int,int)> operation_;*/
-	QString description_;
-	float prix_;
 };

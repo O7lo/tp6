@@ -45,7 +45,7 @@
 
 // Fonctions pour l'opération:
 // (on aurait pu à la place mettre des lambdas dans operationPlus() ...)
-void Caisse::ajouter (QString description,float prix, bool taxable) {
+void Caisse::ajouter (QString description,double prix, bool taxable) {
 
 	articles_.push_back(Article(description.toStdString(),prix,taxable));
 	emit vecteurModifie();

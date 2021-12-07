@@ -99,6 +99,7 @@ CaisseWindow::CaisseWindow(QWidget* parent) :
 	prixArticle->setPlaceholderText("Prix de l'article");
 	prixArticle->setFixedHeight(30);
 	prixArticle->setMaximumWidth(75);
+	prixArticle->setValidator(new QDoubleValidator(this));
 	layoutLineEdits->addWidget(prixArticle);
 
 	QObject::connect(boutonAjouter, &QPushButton::clicked, this, &CaisseWindow::envoyerNouvelArticle);
@@ -153,9 +154,14 @@ CaisseWindow::CaisseWindow(QWidget* parent) :
 }
 
 void CaisseWindow::envoyerNouvelArticle() {
-
+	/*probleme de compatibilité entre QDoubleValidator et QString::toDouble().
+	merci à Cory Quammen pour la solution trouvée en ligne : https://gitlab.kitware.com/paraview/paraview/-/issues/15786
+	---------------------------------------------------*/
+	QLocale oL;
+	double dValue = oL.toDouble(CaisseWindow::prixArticle_->text());
+	//--------------------------------------------------
 	emit nouvelArticle	(CaisseWindow::nomArticle_->text(),
-						(CaisseWindow::prixArticle_->text()).toFloat(),
+						dValue,
 						CaisseWindow::taxable_->checkState());
 }
 
@@ -163,7 +169,7 @@ void CaisseWindow::rafraichirArticles() {
 	vector<Article> articles = Caisse_.getArticles();
 	CaisseWindow::listeArticles_->clear();
 	for (Article article : articles) {
-		CaisseWindow::listeArticles_->addItem(article.toString());
+		CaisseWindow::listeArticles_->addItem(article.toQString());
 	}
 }
 // Pour la version QButtonGroup.
