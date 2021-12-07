@@ -9,7 +9,6 @@
 #include <QString>
 #include <QVariant>
 #include <QSplitter>
-#include <QListWidget>
 #pragma pop()
 #include <iostream>
 #include <type_traits>
@@ -104,6 +103,7 @@ CaisseWindow::CaisseWindow(QWidget* parent) :
 
 	QObject::connect(boutonAjouter, &QPushButton::clicked, this, &CaisseWindow::envoyerNouvelArticle);
 	QObject::connect(this, &CaisseWindow::nouvelArticle, &Caisse_, &Caisse::ajouter);
+	QObject::connect(&Caisse_, &Caisse::vecteurModifie, this, &CaisseWindow::rafraichirArticles );
 
 	
 	//listeArticles->set
@@ -132,11 +132,10 @@ CaisseWindow::CaisseWindow(QWidget* parent) :
 	Article.push_back("orange");
 	Article.push_back("honey");
 	auto listeArticles = new QListWidget(this);
+	listeArticles_ = listeArticles;
 	layoutGauche->addWidget(listeArticles);
 	
-	for (auto i : range(Article.size())) {
-		listeArticles->addItem(Article[i]);
-	}
+	
 	
 
 	QLabel* totalAvantTaxe = new QLabel("Total avant taxes: ", this);
@@ -158,6 +157,14 @@ void CaisseWindow::envoyerNouvelArticle() {
 	emit nouvelArticle	(CaisseWindow::nomArticle_->text(),
 						(CaisseWindow::prixArticle_->text()).toFloat(),
 						CaisseWindow::taxable_->checkState());
+}
+
+void CaisseWindow::rafraichirArticles() {
+	vector<Article> articles = Caisse_.getArticles();
+	CaisseWindow::listeArticles_->clear();
+	for (Article article : articles) {
+		CaisseWindow::listeArticles_->addItem(article.toString());
+	}
 }
 // Pour la version QButtonGroup.
 // Pourrait aussi être sans paramètre et faire Caisse_.obtenirValeur()
