@@ -10,12 +10,10 @@
 using namespace std;
 
 inline std::string doubleVersString(double valeur) {
-	int valeur100 = round(valeur * 100);
+	double valeur100 = round(valeur * 100)/100;
 	std::string str = to_string(valeur100);
 	std::string valeurString = "0";
-	if (valeur100) {
-		valeurString = str.substr(0, str.length() - 2) + "." + str.substr(str.length() - 2, str.length());
-	}
+		valeurString = str.substr(0, str.find(".")+3);
 	return valeurString;
 }
 
