@@ -51,11 +51,20 @@ void Caisse::ajouter (QString description,double prix, bool taxable) {
 	emit vecteurModifie();
 }
 
-void Caisse::retirer() {
-	//element de la liste
+void Caisse::retirer(QString description) {
+	std::vector<Article>::const_iterator it= articles_.cbegin();
+	while (it != articles_.cend()) {
+		if (it->toQString() == description) {
+			articles_.erase(it);
+			emit vecteurModifie();
+			break;
+		}
+		it++;
+	}
 }
-void Caisse::reset() {
-	//vider la liste et les zones de texte
+void Caisse::reinitialiser() {
+	articles_.clear();
+	emit vecteurModifie();
 }
 
 void Caisse::calculerTotaux() {

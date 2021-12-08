@@ -11,6 +11,7 @@
 #include <QLineEdit>
 #include <QCheckBox>
 #include <QListWidget>
+#include <QHBoxLayout>
 #pragma pop()
 
 class CaisseWindow : public QMainWindow {
@@ -24,15 +25,21 @@ public slots:
 	//void changerValeurAffichee(int valeur);  // Pour la version QButtonGroup.
 	//void chiffreAppuye(); //QAbstractButton* bouton);  // Pour la version setProperty.
 	void envoyerNouvelArticle();
+	void envoyerRetirerArticle();
 	void rafraichirArticles();
 	void rafraichirTotaux(QString sousTotal, QString taxes, QString total);
 
 signals:
 	void nouvelArticle(const QString& description, const float& prix, const bool& taxable);
+	void retirerArticle(const QString& desription);
 
 private:
 	template <typename T = decltype(nullptr)>
-	QPushButton* nouveauBouton(const QString& text, const T& slot = nullptr);
+	QPushButton* nouveauBouton(const QString& text,const CaisseWindow* receiver , const T& slot);
+	template <typename T = decltype(nullptr)>
+	QPushButton* nouveauBouton(const QString& text, const Caisse* receiver, const T& slot);
+
+	QHBoxLayout* nouveauLabelTotal(const QString& texte, QLabel*& qlabel);
 
 	Caisse Caisse_;  // Le Modèle (pourrait être un pointeur mais pas nécessaire dans ce cas).
 	QListWidget* listeArticles_;

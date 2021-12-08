@@ -2,7 +2,6 @@
 
 #include "CaisseWindow.hpp"
 #pragma warning(push, 0) // Sinon Qt fait des avertissements à /W4.
-#include <QHBoxLayout>
 #include <QPushButton>
 #include <QButtonGroup>
 #include <QLabel>
@@ -20,13 +19,33 @@ using iter::range;
 
 
 template <typename T>
-QPushButton* CaisseWindow::nouveauBouton(const QString& text, const T& slot)
+QPushButton* CaisseWindow::nouveauBouton(const QString& text,const CaisseWindow* receiver, const T& slot)
 {
 	auto bouton = new QPushButton(this);
 	bouton->setText(text);
 	bouton->setFixedHeight(40);
-	QObject::connect(bouton, &QPushButton::clicked, &Caisse_, slot);
+	QObject::connect(bouton, &QPushButton::clicked, receiver, slot);
 	return bouton;	
+}
+template <typename T>
+QPushButton* CaisseWindow::nouveauBouton(const QString& text, const Caisse* receiver, const T& slot)
+{
+	auto bouton = new QPushButton(this);
+	bouton->setText(text);
+	bouton->setFixedHeight(40);
+	QObject::connect(bouton, &QPushButton::clicked, receiver, slot);
+	return bouton;
+}
+
+QHBoxLayout* CaisseWindow::nouveauLabelTotal(const QString& texte, QLabel*& qlabel) {
+	QLabel* total = new QLabel(texte);
+	QLabel* valeur = new QLabel("0");
+	valeur->setAlignment(Qt::AlignRight);
+	qlabel = valeur;
+	auto layout = new QHBoxLayout();
+	layout->addWidget(total);
+	layout->addWidget(valeur);
+	return layout;
 }
 
 CaisseWindow::CaisseWindow(QWidget* parent) :
@@ -57,14 +76,9 @@ CaisseWindow::CaisseWindow(QWidget* parent) :
 
 	//layout pour les entrées utilisateur
 	
-	auto boutonAjouter = new QPushButton(this);
-	layoutEntree->addWidget(boutonAjouter);
-	boutonAjouter->setText("Ajouter article");
-	boutonAjouter->setFixedHeight(40);
-	
-
-	layoutEntree->addWidget(nouveauBouton("Retirer article",&Caisse::retirer));
-	layoutEntree->addWidget(nouveauBouton("Tout réinitialiser",&Caisse::reset));
+	layoutEntree->addWidget(nouveauBouton("Ajouter article", this, &CaisseWindow::envoyerNouvelArticle));
+	layoutEntree->addWidget(nouveauBouton("Retirer article", this, &CaisseWindow::envoyerRetirerArticle));
+	layoutEntree->addWidget(nouveauBouton("Tout réinitialiser",&Caisse_,&Caisse::reinitialiser));
 	auto layoutLineEdits = new QHBoxLayout();
 	layoutEntree->addLayout(layoutLineEdits);
 	QCheckBox* taxable = new QCheckBox("&Taxable", this);
@@ -95,8 +109,8 @@ CaisseWindow::CaisseWindow(QWidget* parent) :
 	prixArticle->setValidator(new QDoubleValidator(this));
 	layoutLineEdits->addWidget(prixArticle);
 
-	QObject::connect(boutonAjouter, &QPushButton::clicked, this, &CaisseWindow::envoyerNouvelArticle);
 	QObject::connect(this, &CaisseWindow::nouvelArticle, &Caisse_, &Caisse::ajouter);
+	QObject::connect(this, &CaisseWindow::retirerArticle, &Caisse_, &Caisse::retirer);
 	QObject::connect(&Caisse_, &Caisse::vecteurModifie, this, &CaisseWindow::rafraichirArticles );
 	QObject::connect(&Caisse_, &Caisse::vecteurModifie, &Caisse_, &Caisse::calculerTotaux);
 	QObject::connect(&Caisse_, &Caisse::totauxModifies, this, &CaisseWindow::rafraichirTotaux);
@@ -107,32 +121,9 @@ CaisseWindow::CaisseWindow(QWidget* parent) :
 	listeArticles_ = listeArticles;
 	layoutGauche->addWidget(listeArticles);
 
-	QLabel* totalAvantTaxes = new QLabel("Sous-Total: ", this);
-	QLabel* valeurAvantTaxes = new QLabel("0", this);
-	valeurAvantTaxes->setAlignment(Qt::AlignRight);
-	totalAvantTaxes_ = valeurAvantTaxes;
-	auto layoutSousTotal = new QHBoxLayout();
-	layoutGauche->addLayout(layoutSousTotal);
-	layoutSousTotal->addWidget(totalAvantTaxes);
-	layoutSousTotal->addWidget(valeurAvantTaxes);
-
-	QLabel* totalTaxes = new QLabel("Taxes: ", this);
-	QLabel* valeurTaxes = new QLabel("0", this);
-	valeurTaxes->setAlignment(Qt::AlignRight);
-	totalTaxes_ = valeurTaxes;
-	auto layoutTaxes = new QHBoxLayout();
-	layoutGauche->addLayout(layoutTaxes);
-	layoutTaxes->addWidget(totalTaxes);
-	layoutTaxes->addWidget(valeurTaxes);
-
-	QLabel* total = new QLabel("Total: ", this);
-	QLabel* valeurTotal = new QLabel("0", this);
-	valeurTotal->setAlignment(Qt::AlignRight);
-	total_ = valeurTotal;
-	auto layoutTotal = new QHBoxLayout();
-	layoutGauche->addLayout(layoutTotal);
-	layoutTotal->addWidget(total);
-	layoutTotal->addWidget(valeurTotal);
+	layoutGauche->addLayout(nouveauLabelTotal("Sous-Total: ", totalAvantTaxes_));
+	layoutGauche->addLayout(nouveauLabelTotal("Taxes: ", totalTaxes_));
+	layoutGauche->addLayout(nouveauLabelTotal("Total: ", total_));
 
 	setCentralWidget(widgetPrincipal);
 	setWindowTitle("Caisse enregistreuse");
@@ -148,6 +139,10 @@ void CaisseWindow::envoyerNouvelArticle() {
 	emit nouvelArticle	(CaisseWindow::nomArticle_->text(),
 						dValue,
 						CaisseWindow::taxable_->checkState());
+}
+
+void CaisseWindow::envoyerRetirerArticle() {
+	emit retirerArticle(listeArticles_->currentItem()->text());
 }
 
 void CaisseWindow::rafraichirArticles() {

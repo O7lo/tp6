@@ -18,16 +18,16 @@ inline std::string doubleVersString(double valeur) {
 }
 
 struct Article {
-	const string nom;
+	string description;
 	double prix;
 	bool taxable;
 
-	QString toQString() {
+	QString toQString() const{
 		string tax = "";
 		string article;
 		string prixAffichable = doubleVersString(prix);
 		if (taxable) {tax = "taxable";}
-		article = nom + "\t" + prixAffichable + "\t" + tax;
+		article = description + "\t" + prixAffichable + "\t" + tax;
 		return QString(article.c_str());
 	}
 };
@@ -44,8 +44,8 @@ public:
 public slots:
 	
 	void ajouter(QString description,double prix, bool taxable);
-	void retirer();
-	void reset();
+	void retirer(QString description);
+	void reinitialiser();
 	void calculerTotaux();
 
 signals:
