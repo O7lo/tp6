@@ -6,6 +6,7 @@
 #include <iostream>
 #include <vector>
 #include <QString>
+#include <QListWidgetItem>
 
 using namespace std;
 
@@ -44,7 +45,7 @@ public:
 public slots:
 	
 	void ajouter(QString description,double prix, bool taxable);
-	void retirer(QString description);
+	void retirer(const QList<QListWidgetItem*> articlesARetirer);
 	void reinitialiser();
 	void calculerTotaux();
 

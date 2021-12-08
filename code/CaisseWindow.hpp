@@ -26,18 +26,18 @@ public slots:
 	//void chiffreAppuye(); //QAbstractButton* bouton);  // Pour la version setProperty.
 	void envoyerNouvelArticle();
 	void envoyerRetirerArticle();
+	void envoyerReinitialiser();
 	void rafraichirArticles();
 	void rafraichirTotaux(QString sousTotal, QString taxes, QString total);
 
 signals:
 	void nouvelArticle(const QString& description, const float& prix, const bool& taxable);
-	void retirerArticle(const QString& desription);
+	void retirerArticle(const QList<QListWidgetItem*> articlesARetirer);
+	void reinitialiser();
 
 private:
 	template <typename T = decltype(nullptr)>
 	QPushButton* nouveauBouton(const QString& text,const CaisseWindow* receiver , const T& slot);
-	template <typename T = decltype(nullptr)>
-	QPushButton* nouveauBouton(const QString& text, const Caisse* receiver, const T& slot);
 
 	QHBoxLayout* nouveauLabelTotal(const QString& texte, QLabel*& qlabel);
 
@@ -49,5 +49,5 @@ private:
 	QLabel* totalAvantTaxes_;
 	QLabel* totalTaxes_;
 	QLabel* total_;
-	//QLabel* affichage_;  // Pour la version QButtonGroup.
+	QPushButton* boutonRetirer_;
 };

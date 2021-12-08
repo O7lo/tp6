@@ -27,15 +27,6 @@ QPushButton* CaisseWindow::nouveauBouton(const QString& text,const CaisseWindow*
 	QObject::connect(bouton, &QPushButton::clicked, receiver, slot);
 	return bouton;	
 }
-template <typename T>
-QPushButton* CaisseWindow::nouveauBouton(const QString& text, const Caisse* receiver, const T& slot)
-{
-	auto bouton = new QPushButton(this);
-	bouton->setText(text);
-	bouton->setFixedHeight(40);
-	QObject::connect(bouton, &QPushButton::clicked, receiver, slot);
-	return bouton;
-}
 
 QHBoxLayout* CaisseWindow::nouveauLabelTotal(const QString& texte, QLabel*& qlabel) {
 	QLabel* total = new QLabel(texte);
@@ -77,8 +68,10 @@ CaisseWindow::CaisseWindow(QWidget* parent) :
 	//layout pour les entrées utilisateur
 	
 	layoutEntree->addWidget(nouveauBouton("Ajouter article", this, &CaisseWindow::envoyerNouvelArticle));
-	layoutEntree->addWidget(nouveauBouton("Retirer article", this, &CaisseWindow::envoyerRetirerArticle));
-	layoutEntree->addWidget(nouveauBouton("Tout réinitialiser",&Caisse_,&Caisse::reinitialiser));
+	boutonRetirer_ = nouveauBouton("Retirer article", this, &CaisseWindow::envoyerRetirerArticle);
+	boutonRetirer_->setEnabled(false);
+	layoutEntree->addWidget(boutonRetirer_);
+	layoutEntree->addWidget(nouveauBouton("Tout réinitialiser",this,&CaisseWindow::envoyerReinitialiser));
 	auto layoutLineEdits = new QHBoxLayout();
 	layoutEntree->addLayout(layoutLineEdits);
 	QCheckBox* taxable = new QCheckBox("&Taxable", this);
@@ -111,6 +104,7 @@ CaisseWindow::CaisseWindow(QWidget* parent) :
 
 	QObject::connect(this, &CaisseWindow::nouvelArticle, &Caisse_, &Caisse::ajouter);
 	QObject::connect(this, &CaisseWindow::retirerArticle, &Caisse_, &Caisse::retirer);
+	QObject::connect(this, &CaisseWindow::reinitialiser, &Caisse_, &Caisse::reinitialiser);
 	QObject::connect(&Caisse_, &Caisse::vecteurModifie, this, &CaisseWindow::rafraichirArticles );
 	QObject::connect(&Caisse_, &Caisse::vecteurModifie, &Caisse_, &Caisse::calculerTotaux);
 	QObject::connect(&Caisse_, &Caisse::totauxModifies, this, &CaisseWindow::rafraichirTotaux);
@@ -120,6 +114,7 @@ CaisseWindow::CaisseWindow(QWidget* parent) :
 	auto listeArticles = new QListWidget(this);
 	listeArticles_ = listeArticles;
 	layoutGauche->addWidget(listeArticles);
+	listeArticles_->setSelectionMode(QAbstractItemView::ExtendedSelection);
 
 	layoutGauche->addLayout(nouveauLabelTotal("Sous-Total: ", totalAvantTaxes_));
 	layoutGauche->addLayout(nouveauLabelTotal("Taxes: ", totalTaxes_));
@@ -142,11 +137,21 @@ void CaisseWindow::envoyerNouvelArticle() {
 }
 
 void CaisseWindow::envoyerRetirerArticle() {
-	emit retirerArticle(listeArticles_->currentItem()->text());
+	//ajouter une gestion d'erreur si pas d'article selectionné
+	emit retirerArticle(listeArticles_->selectedItems());
+}
+
+void CaisseWindow::envoyerReinitialiser() {
+	nomArticle_->clear();
+	prixArticle_->clear();
+	taxable_->setChecked(false);
+	emit reinitialiser();
 }
 
 void CaisseWindow::rafraichirArticles() {
 	vector<Article> articles = Caisse_.getArticles();
+	if (articles.size() == 0) {boutonRetirer_->setEnabled(false);}
+	else boutonRetirer_->setEnabled(true);
 	CaisseWindow::listeArticles_->clear();
 	for (Article article : articles) {
 		CaisseWindow::listeArticles_->addItem(article.toQString());

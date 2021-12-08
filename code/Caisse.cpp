@@ -51,16 +51,19 @@ void Caisse::ajouter (QString description,double prix, bool taxable) {
 	emit vecteurModifie();
 }
 
-void Caisse::retirer(QString description) {
-	std::vector<Article>::const_iterator it= articles_.cbegin();
-	while (it != articles_.cend()) {
-		if (it->toQString() == description) {
-			articles_.erase(it);
-			emit vecteurModifie();
-			break;
+void Caisse::retirer(const QList<QListWidgetItem*> articlesARetirer) {
+	std::vector<std::vector<Article>::const_iterator> aDetruire;
+	for(QListWidgetItem* item:articlesARetirer){
+		std::vector<Article>::const_iterator it = articles_.cbegin();
+		while (it != articles_.cend()) {
+			if (it->toQString() == item->text()) {
+				articles_.erase(it);
+				break;
+			}
+			it++;
 		}
-		it++;
 	}
+	emit vecteurModifie();
 }
 void Caisse::reinitialiser() {
 	articles_.clear();
