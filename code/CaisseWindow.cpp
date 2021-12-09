@@ -38,7 +38,14 @@ QHBoxLayout* CaisseWindow::nouveauLabelTotal(const QString& texte, QLabel*& qlab
 	layout->addWidget(valeur);
 	return layout;
 }
-
+QLabel* CaisseWindow::erreurLabel(const QString& text) {
+	auto label = new QLabel(this);
+	label->setFixedHeight(0);
+	label->setText(text);
+	label->setStyleSheet("QLabel { color : red; }");
+	
+	return label;
+}
 CaisseWindow::CaisseWindow(QWidget* parent) :
 	QMainWindow(parent)
 {
@@ -73,10 +80,7 @@ CaisseWindow::CaisseWindow(QWidget* parent) :
 	boutonRetirer_ = nouveauBouton("Retirer article", this, &CaisseWindow::envoyerRetirerArticle);
 	boutonRetirer_->setEnabled(false);
 	layoutRetirer->addWidget(boutonRetirer_);
-	erreurRetirer_ = new QLabel();
-	erreurRetirer_->setFixedHeight(0);
-	erreurRetirer_->setText("*Aucun article sélectionné");
-	erreurRetirer_ ->setStyleSheet("QLabel { color : red; }");
+	erreurRetirer_ = erreurLabel("*Aucun article sélectionné");
 	layoutRetirer->addWidget(erreurRetirer_);
 	layoutEntree->addLayout(layoutRetirer);
 	layoutEntree->addWidget(nouveauBouton("Tout réinitialiser",this,&CaisseWindow::envoyerReinitialiser));
@@ -95,10 +99,7 @@ CaisseWindow::CaisseWindow(QWidget* parent) :
 	nomArticle->setPlaceholderText("Description de l'article");
 	layoutNom->addWidget(nomArticle);
 	layoutNom->setSpacing(0);
-	erreurNom_ = new QLabel();
-	erreurNom_->setFixedHeight(0);
-	erreurNom_->setText("*description manquante");
-	erreurNom_->setStyleSheet("QLabel { color : red; }");
+	erreurNom_ = erreurLabel("*description manquante");
 	layoutNom->addWidget(erreurNom_);
 	layoutLineEdits->addLayout(layoutNom);
 	auto layoutPrix = new QVBoxLayout();
@@ -110,10 +111,7 @@ CaisseWindow::CaisseWindow(QWidget* parent) :
 	prixArticle->setValidator(new QDoubleValidator(this));
 	layoutPrix->addWidget(prixArticle);
 	layoutPrix->setSpacing(0); layoutRetirer->setSpacing(0);
-	erreurPrix_ = new QLabel();
-	erreurPrix_->setFixedHeight(0);
-	erreurPrix_->setText("*prix manquant");
-	erreurPrix_->setStyleSheet("QLabel { color : red; }");
+	erreurPrix_ = erreurLabel("*prix manquant");
 	layoutPrix->addWidget(erreurPrix_);
 	layoutLineEdits->addLayout(layoutPrix);
 	

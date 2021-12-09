@@ -30,6 +30,7 @@ public slots:
 	void envoyerReinitialiser();
 	void rafraichirArticles();
 	void rafraichirTotaux(QString sousTotal, QString taxes, QString total);
+	
 
 signals:
 	void reinitialiser();
@@ -39,6 +40,7 @@ private:
 	QPushButton* nouveauBouton(const QString& text,const CaisseWindow* receiver , const T& slot);
 
 	QHBoxLayout* nouveauLabelTotal(const QString& texte, QLabel*& qlabel);
+	QLabel* erreurLabel(const QString& text);
 
 	void effacerErreurs();
 
