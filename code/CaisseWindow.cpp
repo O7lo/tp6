@@ -68,9 +68,17 @@ CaisseWindow::CaisseWindow(QWidget* parent) :
 	//layout pour les entrées utilisateur
 	
 	layoutEntree->addWidget(nouveauBouton("Ajouter article", this, &CaisseWindow::envoyerNouvelArticle));
+	auto layoutRetirer = new QVBoxLayout();
+	layoutRetirer->setSpacing(0);
 	boutonRetirer_ = nouveauBouton("Retirer article", this, &CaisseWindow::envoyerRetirerArticle);
 	boutonRetirer_->setEnabled(false);
-	layoutEntree->addWidget(boutonRetirer_);
+	layoutRetirer->addWidget(boutonRetirer_);
+	erreurRetirer_ = new QLabel();
+	erreurRetirer_->setFixedHeight(0);
+	erreurRetirer_->setText("*Aucun article sélectionné");
+	erreurRetirer_ ->setStyleSheet("QLabel { color : red; }");
+	layoutRetirer->addWidget(erreurRetirer_);
+	layoutEntree->addLayout(layoutRetirer);
 	layoutEntree->addWidget(nouveauBouton("Tout réinitialiser",this,&CaisseWindow::envoyerReinitialiser));
 	auto layoutLineEdits = new QHBoxLayout();
 	layoutEntree->addLayout(layoutLineEdits);
@@ -79,36 +87,36 @@ CaisseWindow::CaisseWindow(QWidget* parent) :
 	layoutEntree->addWidget(taxable);
 
 
-	/*layoutDroite->addSpacing(10);
-	auto label = new QLabel(this);
-	affichage_ = label;
-	label->setMinimumWidth(100);
-	QObject::connect(&Caisse_, &Caisse::valeurChangee, this, &CaisseWindow::changerValeurAffichee);
-	layoutDroite->addWidget(label);*/
-
-	
 	//layout pour la description et le prix de l'article
+	auto layoutNom = new QVBoxLayout();
 	auto nomArticle = new QLineEdit(this);
 	nomArticle_ = nomArticle;
 	nomArticle->setFixedHeight(30);
 	nomArticle->setPlaceholderText("Description de l'article");
-	layoutLineEdits->addWidget(nomArticle);
-	layoutLineEdits->addSpacing(10);
+	layoutNom->addWidget(nomArticle);
+	layoutNom->setSpacing(0);
+	erreurNom_ = new QLabel();
+	erreurNom_->setFixedHeight(0);
+	erreurNom_->setText("*description manquante");
+	erreurNom_->setStyleSheet("QLabel { color : red; }");
+	layoutNom->addWidget(erreurNom_);
+	layoutLineEdits->addLayout(layoutNom);
+	auto layoutPrix = new QVBoxLayout();
 	auto prixArticle = new QLineEdit(this);
 	prixArticle_ = prixArticle;
 	prixArticle->setPlaceholderText("Prix de l'article");
 	prixArticle->setFixedHeight(30);
 	prixArticle->setMaximumWidth(75);
 	prixArticle->setValidator(new QDoubleValidator(this));
-	layoutLineEdits->addWidget(prixArticle);
-
-	QObject::connect(this, &CaisseWindow::nouvelArticle, &Caisse_, &Caisse::ajouter);
-	QObject::connect(this, &CaisseWindow::retirerArticle, &Caisse_, &Caisse::retirer);
-	QObject::connect(this, &CaisseWindow::reinitialiser, &Caisse_, &Caisse::reinitialiser);
-	QObject::connect(&Caisse_, &Caisse::vecteurModifie, this, &CaisseWindow::rafraichirArticles );
-	QObject::connect(&Caisse_, &Caisse::vecteurModifie, &Caisse_, &Caisse::calculerTotaux);
-	QObject::connect(&Caisse_, &Caisse::totauxModifies, this, &CaisseWindow::rafraichirTotaux);
-
+	layoutPrix->addWidget(prixArticle);
+	layoutPrix->setSpacing(0); layoutRetirer->setSpacing(0);
+	erreurPrix_ = new QLabel();
+	erreurPrix_->setFixedHeight(0);
+	erreurPrix_->setText("*prix manquant");
+	erreurPrix_->setStyleSheet("QLabel { color : red; }");
+	layoutPrix->addWidget(erreurPrix_);
+	layoutLineEdits->addLayout(layoutPrix);
+	
 
 	//layout de gauche
 	auto listeArticles = new QListWidget(this);
@@ -122,26 +130,51 @@ CaisseWindow::CaisseWindow(QWidget* parent) :
 
 	setCentralWidget(widgetPrincipal);
 	setWindowTitle("Caisse enregistreuse");
+
+
+	//connections
+	QObject::connect(this, &CaisseWindow::reinitialiser, &Caisse_, &Caisse::reinitialiser);
+	QObject::connect(&Caisse_, &Caisse::vecteurModifie, this, &CaisseWindow::rafraichirArticles );
+	QObject::connect(&Caisse_, &Caisse::vecteurModifie, &Caisse_, &Caisse::calculerTotaux);
+	QObject::connect(&Caisse_, &Caisse::totauxModifies, this, &CaisseWindow::rafraichirTotaux);
+
 }
 
 void CaisseWindow::envoyerNouvelArticle() {
-	/*problème de compatibilité entre QDoubleValidator et QString::toDouble().
-	merci à Cory Quammen pour la solution trouvée en ligne : https://gitlab.kitware.com/paraview/paraview/-/issues/15786
-	---------------------------------------------------*/
-	QLocale oL;
-	double dValue = oL.toDouble(CaisseWindow::prixArticle_->text());
-	//--------------------------------------------------
-	emit nouvelArticle	(CaisseWindow::nomArticle_->text(),
-						dValue,
+	effacerErreurs();
+	try {
+		Caisse_.ajouter(CaisseWindow::nomArticle_->text(),
+						CaisseWindow::prixArticle_->text(),
 						CaisseWindow::taxable_->checkState());
+	}
+	catch (const std::invalid_argument& erreur) {
+		std::cout << erreur.what();
+		if (erreur.what() == QString("description et prix")) {
+			erreurNom_->setFixedHeight(15);
+			erreurPrix_->setFixedHeight(15);
+		}
+		else if (erreur.what() == QString("description")) {
+			erreurNom_->setFixedHeight(15);
+		}
+		else if(erreur.what() == QString("prix")){
+			erreurPrix_->setFixedHeight(15);
+		}
+	}
 }
 
 void CaisseWindow::envoyerRetirerArticle() {
-	//ajouter une gestion d'erreur si pas d'article selectionné
-	emit retirerArticle(listeArticles_->selectedItems());
+	effacerErreurs();
+	try {
+		Caisse_.retirer(listeArticles_->selectedItems());
+	}
+	catch (const std::invalid_argument& erreur) {
+		std::cout<<erreur.what();
+		erreurRetirer_->setFixedHeight(15);
+	}
 }
 
 void CaisseWindow::envoyerReinitialiser() {
+	effacerErreurs();
 	nomArticle_->clear();
 	prixArticle_->clear();
 	taxable_->setChecked(false);
@@ -162,4 +195,10 @@ void CaisseWindow::rafraichirTotaux(QString sousTotal, QString taxes, QString to
 	CaisseWindow::totalAvantTaxes_->setText(sousTotal);
 	CaisseWindow::totalTaxes_->setText(taxes);
 	CaisseWindow::total_->setText(total);
+}
+
+void CaisseWindow::effacerErreurs() {
+	erreurNom_->setFixedHeight(0);
+	erreurPrix_->setFixedHeight(0);
+	erreurRetirer_->setFixedHeight(0);
 }

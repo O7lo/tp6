@@ -44,7 +44,7 @@ public:
 
 public slots:
 	
-	void ajouter(QString description,double prix, bool taxable);
+	void ajouter(QString description,QString prix, bool taxable);
 	void retirer(const QList<QListWidgetItem*> articlesARetirer);
 	void reinitialiser();
 	void calculerTotaux();

@@ -45,13 +45,30 @@
 
 // Fonctions pour l'opération:
 // (on aurait pu à la place mettre des lambdas dans operationPlus() ...)
-void Caisse::ajouter (QString description,double prix, bool taxable) {
-
-	articles_.push_back(Article(description.toStdString(),prix,taxable));
+void Caisse::ajouter (QString description,QString prix, bool taxable) {
+	if (description.isEmpty()) {
+		if (prix.isEmpty()) {
+			throw std::invalid_argument("description et prix");
+		}
+		else throw std::invalid_argument("description");
+	}
+	else if (prix.isEmpty()) {
+		throw std::invalid_argument("prix");
+	}
+	/*problème de compatibilité entre QDoubleValidator et QString::toDouble().
+	merci à Cory Quammen pour la solution trouvée en ligne : https://gitlab.kitware.com/paraview/paraview/-/issues/15786
+	---------------------------------------------------*/
+	QLocale oL;
+	double valeurPrix = oL.toDouble(prix);
+	//--------------------------------------------------
+	articles_.push_back(Article(description.toStdString(),valeurPrix,taxable));
 	emit vecteurModifie();
 }
 
 void Caisse::retirer(const QList<QListWidgetItem*> articlesARetirer) {
+	if (articlesARetirer.isEmpty()) {
+		throw std::invalid_argument("rien de sélectionné");
+	}
 	std::vector<std::vector<Article>::const_iterator> aDetruire;
 	for(QListWidgetItem* item:articlesARetirer){
 		std::vector<Article>::const_iterator it = articles_.cbegin();

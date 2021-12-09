@@ -12,6 +12,7 @@
 #include <QCheckBox>
 #include <QListWidget>
 #include <QHBoxLayout>
+#include <stdexcept>
 #pragma pop()
 
 class CaisseWindow : public QMainWindow {
@@ -31,8 +32,6 @@ public slots:
 	void rafraichirTotaux(QString sousTotal, QString taxes, QString total);
 
 signals:
-	void nouvelArticle(const QString& description, const float& prix, const bool& taxable);
-	void retirerArticle(const QList<QListWidgetItem*> articlesARetirer);
 	void reinitialiser();
 
 private:
@@ -40,6 +39,8 @@ private:
 	QPushButton* nouveauBouton(const QString& text,const CaisseWindow* receiver , const T& slot);
 
 	QHBoxLayout* nouveauLabelTotal(const QString& texte, QLabel*& qlabel);
+
+	void effacerErreurs();
 
 	Caisse Caisse_;  // Le Modèle (pourrait être un pointeur mais pas nécessaire dans ce cas).
 	QListWidget* listeArticles_;
@@ -50,4 +51,7 @@ private:
 	QLabel* totalTaxes_;
 	QLabel* total_;
 	QPushButton* boutonRetirer_;
+	QLabel* erreurRetirer_;
+	QLabel* erreurNom_;
+	QLabel* erreurPrix_;
 };
