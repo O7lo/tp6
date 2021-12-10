@@ -38,8 +38,8 @@ QHBoxLayout* CaisseWindow::nouveauLabelTotal(const QString& texte, QLabel*& qlab
 	layout->addWidget(valeur);
 	return layout;
 }
-QLabel* CaisseWindow::erreurLabel(const QString& text) {
-	auto label = new QLabel(this);
+QLabel* CaisseWindow::nouveauErreurLabel(const QString& text) {
+	auto label = new QLabel();
 	label->setFixedHeight(0);
 	label->setText(text);
 	label->setStyleSheet("QLabel { color : red; }");
@@ -80,7 +80,7 @@ CaisseWindow::CaisseWindow(QWidget* parent) :
 	boutonRetirer_ = nouveauBouton("Retirer article", this, &CaisseWindow::envoyerRetirerArticle);
 	boutonRetirer_->setEnabled(false);
 	layoutRetirer->addWidget(boutonRetirer_);
-	erreurRetirer_ = erreurLabel("*Aucun article sélectionné");
+	erreurRetirer_ = nouveauErreurLabel("*Aucun article sélectionné");
 	layoutRetirer->addWidget(erreurRetirer_);
 	layoutEntree->addLayout(layoutRetirer);
 	layoutEntree->addWidget(nouveauBouton("Tout réinitialiser",this,&CaisseWindow::envoyerReinitialiser));
@@ -99,7 +99,7 @@ CaisseWindow::CaisseWindow(QWidget* parent) :
 	nomArticle->setPlaceholderText("Description de l'article");
 	layoutNom->addWidget(nomArticle);
 	layoutNom->setSpacing(0);
-	erreurNom_ = erreurLabel("*description manquante");
+	erreurNom_ = nouveauErreurLabel("*description manquante");
 	layoutNom->addWidget(erreurNom_);
 	layoutLineEdits->addLayout(layoutNom);
 	auto layoutPrix = new QVBoxLayout();
@@ -110,8 +110,8 @@ CaisseWindow::CaisseWindow(QWidget* parent) :
 	prixArticle->setMaximumWidth(75);
 	prixArticle->setValidator(new QDoubleValidator(this));
 	layoutPrix->addWidget(prixArticle);
-	layoutPrix->setSpacing(0); layoutRetirer->setSpacing(0);
-	erreurPrix_ = erreurLabel("*prix manquant");
+	layoutPrix->setSpacing(0);
+	erreurPrix_ = nouveauErreurLabel("*prix manquant");
 	layoutPrix->addWidget(erreurPrix_);
 	layoutLineEdits->addLayout(layoutPrix);
 	

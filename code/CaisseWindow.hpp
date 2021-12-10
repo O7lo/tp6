@@ -40,7 +40,7 @@ private:
 	QPushButton* nouveauBouton(const QString& text,const CaisseWindow* receiver , const T& slot);
 
 	QHBoxLayout* nouveauLabelTotal(const QString& texte, QLabel*& qlabel);
-	QLabel* erreurLabel(const QString& text);
+	QLabel* nouveauErreurLabel(const QString& text);
 
 	void effacerErreurs();
 
